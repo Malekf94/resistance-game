@@ -2,8 +2,8 @@ const { SlashCommandBuilder } = require("discord.js");
 
 module.exports = {
     data :new SlashCommandBuilder()
-        .setName("join")
-        .setDescription("A new user has joined"),
+        .setName("begin")
+        .setDescription("Game starts"),
     async execute(interaction){
     }
 }
