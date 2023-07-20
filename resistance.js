@@ -34,7 +34,7 @@ client.once(Events.ClientReady, () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 });
 
-let listOfPlayers = ["Kool Sheisty", "mar1", "Stormer", "Yafster", "Mikemarktwo"]
+let listOfPlayers = []
 let noOfSpies = 0
 let spies=[]
 let resistance = []
@@ -51,7 +51,7 @@ let leader = []
 let currentLeader = ""
 let votess = []
 
-let day = 4
+let day = 1
 let resistanceScore = 0
 let spiesScore = 0
 let noOfLeaderchanges = 0
@@ -159,9 +159,13 @@ client.on(Events.InteractionCreate, async interaction => {
 			interaction.reply(`${playerName} is already in the game`)
 		}
 	}
-
+	else if (command.data.name === 'ping') {
+		day++
+		console.log(day);
+		// return interaction.reply('Player list reset.');
+	}
 	else if (command.data.name === 'begin') {
-		if(listOfPlayers.length<0){
+		if(listOfPlayers.length<5){
 			return interaction.reply(`Not enough players`);
 		}
 		let shuffledList = listOfPlayers
@@ -193,12 +197,14 @@ client.on(Events.InteractionCreate, async interaction => {
 		}
 		
 		if(spies.includes(interaction.member.nickname)){
-			interaction.user.send(`You are a spy. ${spiesString}`)
+			// interaction.user.send(`You are a spy. ${spiesString}`)
+			interaction.reply({ content: `You are a spy. ${spiesString}`, ephemeral: true })
 		}
 		else{
-			interaction.user.send("You are resistance")
+			// interaction.user.send("You are resistance")
+			interaction.reply({ content: "You are resistance", ephemeral: true })
 		}
-		interaction.reply("You have been sent your role")
+		// interaction.reply("You have been sent your role")
 
 	}
 	else if (command.data.name === 'getplayers') {
@@ -224,33 +230,16 @@ client.on(Events.InteractionCreate, async interaction => {
 		if(playerName!=leader[leader.length-1]){
 			return interaction.reply("You are not the current leader.")
 		}
-
+		let temp = (noVotesRequired[listOfPlayers.length][day-1])
 		groupOfPlayers.forEach(element => {
 			if(listOfPlayers.includes(element.value)){
 				votess.push(element.value)
 			}
 		});
-		if(votess.length!=(noVotesRequired[listOfPlayers.length][day-1])){
+		if(votess.length!=temp){
+			console.log(votess);
+			console.log(temp);
 			return interaction.reply("You have proposed an incorrect number of people or people who aren't in the game.")
-		}
-
-		try {
-			// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-			let voteString = `${playerName} proposed the following to go on the mission:- ${votess[0]}`
-
-			for(let i=1;i<votess.length;i++){
-				voteString += ` and ${votess[i]}`
-			}
-			voteString += "\nType /yes or /no to declare your vote for the proposal."
-
-			return interaction.reply(`${voteString}`);
-		}
-		catch (error) {
-			if (error.name === 'SequelizeUniqueConstraintError') {
-				return interaction.reply('That tag already exists.');
-			}
-
-			return interaction.reply('Something went wrong with adding a tag.');
 		}
 	}
 	else if (command.data.name === "numberofmissioneers"){
@@ -366,29 +355,61 @@ client.on(Events.InteractionCreate, async interaction => {
 	// 	}
 	// 	return interaction.reply("Your decision has been noted.")
 	// }
-	else if (command.data.name ==="decide_mission") {
+	else if (command.data.name === "decide_mission") {
 		if (!votess.includes(interaction.member.nickname)) {
 			return interaction.reply("You are not on the mission. Sit down fool and know your place.")
 		}
-		if (!spies.includes(interaction.member.nickname)&&interaction.options._hoistedOptions[0]=="fail") {
+		console.log(spies,interaction.options._hoistedOptions[0].value);
+		if (!spies.includes(interaction.member.nickname)&&interaction.options._hoistedOptions[0].value=="fail") {
 			// interaction.reply("Your decision has been noted.")
-			return interaction.send("You can't vote fail if you are resistance.")
+			console.log('test');
+			return interaction.user.send("You can't vote fail if you are resistance.")
 		}
-		missionVotes ++
-		if (interaction.options._hoistedOptions[0]=="fail") {
+		else if (interaction.options._hoistedOptions[0].value=="fail") {
 			failVotes ++
 		}
+		missionVotes ++
+		let outcome = "na"
+		// let i= Math.floor(Math.random()* listOfPlayers.length)
+		// if (missionVotes==votess.length){
+		// 		outcome = determineMission(listOfPlayers.length, failVotes, day)
+		// 		console.log(outcome, "test");
+		// 	}
+		if (outcome=="na") {
+			interaction.user.send({ content: 'Your decision has been noted', ephemeral: true })
+		}
+		// if(outcome=="success"){
+		// 	resistanceScore ++
+		// 	if (resistanceScore==3) {
+		// 	return interaction.reply("The votes have been tallied.\n The mission was a success.\nResistance have won the game")
+		// 	} 
+		// 	else{
+		// 		day++
+		// 		reset()
+		// 		leader.push(listOfPlayers[i])
+		// 		votess = []
+		// 		return interaction.reply(`The mission was a success.\nIt is day number ${day}.\n${leader[0]} is the first leader for the day. Type /propose to propose a mission group for today.`)	
+		// 	}
+		// } else if (outcome=="fail"){
+		// 	spiesScore ++
+		// 	if (spiesScore==3) {
+		// 	return interaction.reply("The votes have been tallied.\n The mission was a failure.\nSpies have won the game")
+		// 	} else {
+		// 		day++
+		// 		reset()
+		// 		leader.push(listOfPlayers[i])
+		// 		votess = []
+		// 		return interaction.reply(`The mission was a failure.\nIt is day number ${day}.\n${leader[0]} is the first leader for the day. Type /propose to propose a mission group for today.`)
+		// 		}
+		// 	}
+	}
+	else if (command.data.name === "score") {
+		interaction.reply(`Resistance score: ${resistanceScore}\nSpies score: ${spiesScore}`)
+	}
+	while (missionVotes==votess.length) {
 		let outcome = "na"
 		let i= Math.floor(Math.random()* listOfPlayers.length)
-		console.log(missionVotes, votess.length);
-		if (missionVotes==votess.length){
-				outcome = determineMission(listOfPlayers.length, failVotes, day)
-				console.log(outcome, "test");
-			}
-		console.log(outcome);
-		if (outcome=="na") {
-			return "Your decision has been noted."
-		}
+		outcome = determineMission(listOfPlayers.length, failVotes, day)
 		if(outcome=="success"){
 			resistanceScore ++
 			if (resistanceScore==3) {
@@ -401,7 +422,8 @@ client.on(Events.InteractionCreate, async interaction => {
 				votess = []
 				return interaction.reply(`The mission was a success.\nIt is day number ${day}.\n${leader[0]} is the first leader for the day. Type /propose to propose a mission group for today.`)	
 			}
-		} else if (outcome=="fail"){
+		} 
+		else if (outcome=="fail"){
 			spiesScore ++
 			if (spiesScore==3) {
 			return interaction.reply("The votes have been tallied.\n The mission was a failure.\nSpies have won the game")
@@ -413,10 +435,6 @@ client.on(Events.InteractionCreate, async interaction => {
 				return interaction.reply(`The mission was a failure.\nIt is day number ${day}.\n${leader[0]} is the first leader for the day. Type /propose to propose a mission group for today.`)
 				}
 			}
-	}
-
-	else if (command.data.name ==="score") {
-		interaction.reply(`Resistance score: ${resistanceScore}\nSpies score: ${spiesScore}`)
 	}
 
 	try {

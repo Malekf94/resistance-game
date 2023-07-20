@@ -14,6 +14,6 @@ module.exports = {
 				{ name: 'Movie', value: 'gif_movie' },
 			)),
     async execute(interaction){
-        await interaction.reply(`Pong!`)
+        // await interaction.reply({ content: 'Secret Pong!', ephemeral: true })
     }
 }
