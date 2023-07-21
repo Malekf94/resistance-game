@@ -5,6 +5,6 @@ module.exports = {
         .setName("start")
         .setDescription("Begins the signing up stage for the game"),
     async execute(interaction){
-        await interaction.reply("Game sign-up has begun, type /join to join the game")
+       
     }
 }
