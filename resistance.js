@@ -314,7 +314,7 @@ client.on(Events.InteractionCreate, async interaction => {
 				reset()
 				noOfLeaderchanges = 0
 				leader = []
-				missioneers+= " will go on the mission. Mission goers type /success to succeed the mission or /fail to fail the mission"
+				missioneers+= " will go on the mission. Mission goers type /decide_mission to choose whether to succeed or fail the mission"
 				interaction.reply(missioneers)
 			}
 		}

@@ -35,6 +35,6 @@ module.exports = {
         No. of players are 7 :- 2,3,3,4,4
         No. of players are 8 :- 3,4,4,5,5
         No. of players are 9 :- 3,4,4,5,5
-        No. of players are 10 :- 3,4,4,5,5,`)
+        No. of players are 10 :- 3,4,4,5,5`)
     }
 }
