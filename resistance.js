@@ -1,33 +1,10 @@
 const {Client, Events, GatewayIntentBits, Collection, SlashCommandBuilder} = require("discord.js")
 const fs = require("node:fs")
 const path = require("node:path")
-const Sequelize = require("sequelize")
 
 const {token} = require("./config.json")
 
 const client = new Client({intents:[GatewayIntentBits.Guilds]})
-
-const sequelize = new Sequelize('database', 'user', 'password', {
-	host: 'localhost',
-	dialect: 'sqlite',
-	logging: false,
-	// SQLite only
-	storage: 'database.sqlite',
-});
-
-const Players = sequelize.define("players",{
-	name: {
-		type: Sequelize.STRING,
-		unique: true,
-	},
-	description: Sequelize.TEXT,
-	username: Sequelize.STRING,
-	usage_count: {
-		type: Sequelize.INTEGER,
-		defaultValue: 0,
-		allowNull: false,
-	}
-})
 
 client.once(Events.ClientReady, () => {
 	Players.sync();
@@ -163,11 +140,6 @@ client.on(Events.InteractionCreate, async interaction => {
 			interaction.reply(`${playerName} is already in the game`)
 		}
 	}
-	else if (command.data.name === 'ping') {
-		day++
-		console.log(day);
-		// return interaction.reply('Player list reset.');
-	}
 	else if (command.data.name === 'begin') {
 		if(listOfPlayers.length<5){
 			return interaction.reply(`Not enough players`);
@@ -266,8 +238,6 @@ client.on(Events.InteractionCreate, async interaction => {
 		});
 		if(votess.length!=temp){
 			votess = []
-			console.log(votess);
-			console.log(temp);
 
 			return interaction.reply("You have proposed an incorrect number of people or people who aren't in the game.")
 		}else{
@@ -364,49 +334,16 @@ client.on(Events.InteractionCreate, async interaction => {
 		if (!votess.includes(interaction.member.nickname)) {
 			return interaction.reply("You are not on the mission. Sit down fool and know your place.")
 		}
-		console.log(spies,interaction.options._hoistedOptions[0].value);
 		if (!spies.includes(interaction.member.nickname)&&interaction.options._hoistedOptions[0].value=="fail") {
-			// interaction.reply("Your decision has been noted.")
-			console.log('test');
 			return interaction.user.send("You can't vote fail if you are resistance.")
 		}
 		else if (interaction.options._hoistedOptions[0].value=="fail") {
 			failVotes ++
 		}
 		missionVotes ++
-		let outcome = "na"
-		// let i= Math.floor(Math.random()* listOfPlayers.length)
-		// if (missionVotes==votess.length){
-		// 		outcome = determineMission(listOfPlayers.length, failVotes, day)
-		// 		console.log(outcome, "test");
-		// 	}
-		if (outcome=="na") {
-			interaction.user.send({ content: 'Your decision has been noted', ephemeral: true })
-		}
-		// if(outcome=="success"){
-		// 	resistanceScore ++
-		// 	if (resistanceScore==3) {
-		// 	return interaction.reply("The votes have been tallied.\n The mission was a success.\nResistance have won the game")
-		// 	} 
-		// 	else{
-		// 		day++
-		// 		reset()
-		// 		leader.push(listOfPlayers[i])
-		// 		votess = []
-		// 		return interaction.reply(`The mission was a success.\nIt is day number ${day}.\n${leader[0]} is the first leader for the day. Type /propose to propose a mission group for today.`)	
-		// 	}
-		// } else if (outcome=="fail"){
-		// 	spiesScore ++
-		// 	if (spiesScore==3) {
-		// 	return interaction.reply("The votes have been tallied.\n The mission was a failure.\nSpies have won the game")
-		// 	} else {
-		// 		day++
-		// 		reset()
-		// 		leader.push(listOfPlayers[i])
-		// 		votess = []
-		// 		return interaction.reply(`The mission was a failure.\nIt is day number ${day}.\n${leader[0]} is the first leader for the day. Type /propose to propose a mission group for today.`)
-		// 		}
-		// 	}
+
+		interaction.user.send({ content: 'Your decision has been noted', ephemeral: true })
+		
 	}
 	else if (command.data.name === "score") {
 		interaction.reply(`Resistance score: ${resistanceScore}\nSpies score: ${spiesScore}`)
